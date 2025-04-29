@@ -1,0 +1,12 @@
+# Ignorar archivos sensibles
+.env
+
+# Ignorar caché de Python
+__pycache__/
+*.pyc
+
+# Ignorar logs
+*.log
+
+# Ignorar datos temporales o de reportes
+data/reportes_dns/
