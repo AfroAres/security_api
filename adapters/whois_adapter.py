@@ -5,10 +5,12 @@ class WhoisAdapter:
     """
     Adaptador para la funcionalidad de escaneo Whois.
     """
-    def scan_domain(self, domain: str) -> Dict:
+
+    @staticmethod
+    def scan_domain(domain: str) -> Dict:
         """
         Ejecuta un escaneo Whois para un dominio y maneja la salida.
-        
+
         :param domain: Dominio a consultar.
         :return: Diccionario con resultados o mensajes de error.
         """

@@ -21,14 +21,22 @@ class ScannerManager:
         """
         return resolve_whois(domain)
 
-    def nmap_scan(self, ip: str) -> Dict:
+    def nmap_scan(self, ip: str, ports: str = "1-1024", options: str = "-sV") -> Dict:
         """
-        Ejecuta un escaneo Nmap para una dirección IP.
+        Ejecuta un escaneo Nmap para una dirección IP y rango de puertos.
         """
-        return perform_nmap_scan(ip)
+        scan_results = perform_nmap_scan(ip, ports, options)
+        if scan_results["status"] == "success":
+            return {"status": "success", "data": scan_results["data"]}
+        else:
+            return scan_results
 
     def google_dorks_scan(self, dorks: List[str]) -> Dict:
         """
         Ejecuta búsquedas con Google Dorks.
         """
-        return {"results": execute_google_dorks(dorks)}
+        results = execute_google_dorks(dorks)
+        if results.get("status") == "success":
+            return {"status": "success", "data": results.get("data")}
+        else:
+            return {"status": "error", "message": results.get("message")}

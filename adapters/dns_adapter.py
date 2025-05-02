@@ -5,7 +5,9 @@ class DNSAdapter:
     """
     Adaptador para la funcionalidad de escaneo DNS.
     """
-    def scan_records(self, domain: str, record_types: List[str] = None) -> Dict:
+
+    @staticmethod
+    def scan_records(domain: str, record_types: List[str] = None) -> Dict:
         """
         Escanea los registros DNS para un dominio especificado.
 

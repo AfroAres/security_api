@@ -1,68 +1,80 @@
-import os
-import requests
-from requests.exceptions import ConnectionError, Timeout, RequestException
-from dotenv import load_dotenv
+import nmap
 import logging
-from typing import List, Dict, Optional
+from typing import Dict, List, Union
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Cargar variables de entorno
-def load_env_variables() -> Optional[Dict[str, str]]:
-    load_dotenv()
-    api_key = os.getenv('API_KEY_SEARCH_GOOGLE')
-    search_engine_id = os.getenv('SEARCH_ENGINE_ID')
+def perform_nmap_scan(ip: str, ports: str = "1-1024", options: str = "-sV") -> Dict:
+    """
+    Realiza un escaneo Nmap para una dirección IP y rango de puertos especificados.
 
-    if not api_key or not search_engine_id:
-        logging.error("API Key o Search Engine ID no encontrados en el archivo .env")
-        return None
-    return {
-        'api_key': api_key,
-        'search_engine_id': search_engine_id
-    }
-
-# Realizar búsqueda con Google Dorks
-def perform_google_search(api_key: str, search_engine_id: str, query: str, start: int = 1, lang: str = "lang_es") -> Optional[List[Dict]]:
-    base_url = "https://www.googleapis.com/customsearch/v1"
-    params = {
-        "key": api_key,
-        "cx": search_engine_id,
-        "q": query,
-        "start": start,
-        "lr": lang,
-    }
+    :param ip: Dirección IP a escanear.
+    :param ports: Rango de puertos para escanear (por defecto "1-1024").
+    :param options: Opciones adicionales para Nmap (por defecto "-sV" para detección de servicios).
+    :return: Diccionario con el estado y los resultados del escaneo.
+    """
+    scanner = nmap.PortScanner()
+    results = {}
 
     try:
-        response = requests.get(base_url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        return data.get("items", [])
-    except (ConnectionError, Timeout, RequestException, ValueError) as e:
-        logging.error(f"Error durante la solicitud: {e}")
-    return None
+        logging.info(f"Iniciando escaneo Nmap para IP: {ip}, Puertos: {ports}, Opciones: {options}")
+        scan_data = scanner.scan(ip, ports, arguments=options)
 
-# Función para guardar resultados
-def save_results_to_file(results: List[Dict], filename: str) -> None:
-    with open(filename, "w", encoding="utf-8") as f:
-        for result in results:
-            f.write("------- Nuevo resultado -------\n")
-            f.write(f"Título: {result.get('title')}\n")
-            f.write(f"Descripción: {result.get('snippet')}\n")
-            f.write(f"Enlace: {result.get('link')}\n")
-            f.write("-------------------------------\n\n")
-    logging.info(f"Resultados guardados en {filename}")
+        # Procesar resultados
+        results["status"] = "success"
+        results["data"] = process_scan_results(scan_data.get("scan", {}))
+    except nmap.PortScannerError as e:
+        logging.error(f"Error del escáner Nmap: {e}")
+        results["status"] = "error"
+        results["message"] = f"Error del escáner Nmap: {e}"
+    except Exception as e:
+        logging.error(f"Error inesperado durante el escaneo Nmap: {e}")
+        results["status"] = "error"
+        results["message"] = f"Error inesperado: {e}"
 
-# Función para ejecutar varias búsquedas
-def execute_google_dorks(dorks: List[str]) -> List[Dict]:
-    env_vars = load_env_variables()
-    if not env_vars:
-        return []
+    return results
 
-    all_results = []
-    for query in dorks:
-        logging.info(f"Ejecutando búsqueda: {query}")
-        results = perform_google_search(env_vars['api_key'], env_vars['search_engine_id'], query)
-        if results:
-            all_results.extend(results)
-    return all_results
+def process_scan_results(scan_data: Dict) -> List[Dict[str, Union[str, int]]]:
+    """
+    Procesa los resultados del escaneo Nmap para convertirlos en un formato estructurado.
+
+    :param scan_data: Resultados sin procesar del escaneo.
+    :return: Lista de diccionarios con detalles del escaneo (host, puertos, estado, servicios).
+    """
+    structured_results = []
+
+    for host, host_data in scan_data.items():
+        host_info = {
+            "host": host,
+            "state": host_data.get("status", {}).get("state", "desconocido"),
+            "ports": []
+        }
+
+        if "tcp" in host_data:
+            for port, port_info in host_data["tcp"].items():
+                host_info["ports"].append({
+                    "port": port,
+                    "state": port_info.get("state", "desconocido"),
+                    "service": port_info.get("name", "desconocido"),
+                    "version": port_info.get("version", "N/A")
+                })
+
+        structured_results.append(host_info)
+
+    return structured_results
+
+def save_scan_results(results: List[Dict], filename: str) -> None:
+    """
+    Guarda los resultados del escaneo en un archivo JSON para análisis posterior.
+
+    :param results: Resultados procesados del escaneo Nmap.
+    :param filename: Nombre del archivo donde se guardarán los resultados.
+    """
+    import json
+    try:
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=4, ensure_ascii=False)
+        logging.info(f"Resultados del escaneo guardados en {filename}")
+    except Exception as e:
+        logging.error(f"Error al guardar los resultados: {e}")
