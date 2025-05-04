@@ -30,7 +30,6 @@ def resolve_whois(domain: str) -> Dict:
         logging.info(f"Realizando consulta WHOIS para el dominio: {domain}")
         w = whois.whois(domain)
         
-        # Formatear fechas si son listas (algunos registros devuelven múltiples fechas)
         def format_date(value):
             if isinstance(value, list):
                 return [str(date) for date in value]

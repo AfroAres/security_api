@@ -1,42 +1,38 @@
-from scanners.dns_scan import resolve_dns_records
-from scanners.whois_scan import resolve_whois
-from scanners.nmap_scan import perform_nmap_scan
-from Security_api.scanners.google_dorks_scan import execute_google_dorks
-from typing import Dict, List
+# /Security_api/scanners/scanner.py
 
-class ScannerManager:
+from adapters.dns_adapter import DNSAdapter
+from adapters.whois_adapter import WhoisAdapter
+from adapters.nmap_adapter import NmapAdapter
+from adapters.google_dorks_adapter import GoogleDorksAdapter
+from typing import List, Dict
+
+
+class Scanner:
     """
-    Gestor central para manejar múltiples herramientas de escaneo.
+    Gestor central para manejar múltiples herramientas de escaneo a través de sus adapters.
+    Cada método delega a su adapter correspondiente usando la interfaz estandarizada.
     """
 
     def dns_scan(self, domain: str, record_types: List[str] = None) -> Dict:
         """
-        Escanea registros DNS para un dominio especificado.
+        Ejecuta un escaneo DNS para el dominio especificado.
         """
-        return resolve_dns_records(domain, record_types)
+        return DNSAdapter.scan_records(domain, record_types)
 
     def whois_scan(self, domain: str) -> Dict:
         """
-        Realiza un escaneo WHOIS para un dominio.
+        Ejecuta una consulta WHOIS para el dominio especificado.
         """
-        return resolve_whois(domain)
+        return WhoisAdapter.scan_domain(domain)
 
-    def nmap_scan(self, ip: str, ports: str = "1-1024", options: str = "-sV") -> Dict:
+    def nmap_scan(self, ips: List[str]) -> Dict:
         """
-        Ejecuta un escaneo Nmap para una dirección IP y rango de puertos.
+        Ejecuta un escaneo Nmap sobre la lista de IPs especificada.
         """
-        scan_results = perform_nmap_scan(ip, ports, options)
-        if scan_results["status"] == "success":
-            return {"status": "success", "data": scan_results["data"]}
-        else:
-            return scan_results
+        return NmapAdapter.scan(ips)
 
     def google_dorks_scan(self, dorks: List[str]) -> Dict:
         """
-        Ejecuta búsquedas con Google Dorks.
+        Ejecuta búsquedas utilizando los dorks especificados.
         """
-        results = execute_google_dorks(dorks)
-        if results.get("status") == "success":
-            return {"status": "success", "data": results.get("data")}
-        else:
-            return {"status": "error", "message": results.get("message")}
+        return GoogleDorksAdapter.scan_dorks(dorks)

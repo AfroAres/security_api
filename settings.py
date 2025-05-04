@@ -1,5 +1,9 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Configuración de seguridad
@@ -11,8 +15,8 @@ ALLOWED_HOSTS = ['educativaipchile.cl', 'localhost', '127.0.0.1']
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
-    'rest_framework',  # Agregar Django REST Framework
-    'api',  # Tu aplicación específica
+    'rest_framework'
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -50,7 +54,7 @@ AUTH_PASSWORD_VALIDATORS = []  # Sin validadores de contraseñas ya que no se us
 
 LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'America/Santiago'  # Ajustado para tu ubicación en Chile
+TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 USE_L10N = True

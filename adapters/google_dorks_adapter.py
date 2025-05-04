@@ -1,4 +1,4 @@
-from Security_api.scanners.google_dorks_scan import execute_google_dorks
+from scanners.google_dorks_scan import execute_google_dorks
 from typing import List, Dict
 
 class GoogleDorksAdapter:
@@ -19,7 +19,6 @@ class GoogleDorksAdapter:
 
         try:
             results = execute_google_dorks(dorks)
-            # Aseguramos un formato de respuesta uniforme
             if results.get("status") != "success":
                 return {
                     "status": "failed",

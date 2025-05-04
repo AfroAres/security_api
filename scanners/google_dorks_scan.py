@@ -8,11 +8,12 @@ from typing import List, Dict
 # Configuración de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Cargar variables de entorno
+
 def load_env_variables() -> Dict[str, str]:
     load_dotenv()
-    api_key = os.getenv('API_KEY_SEARCH_GOOGLE')
-    search_engine_id = os.getenv('SEARCH_ENGINE_ID')
+    api_key = os.getenv('GOOGLE_API_KEY')
+    search_engine_id = os.getenv('GOOGLE_SEARCH_ENGINE_ID')
+
 
     if not api_key or not search_engine_id:
         raise ValueError("API Key o Search Engine ID no encontrados en el archivo .env")
@@ -21,7 +22,6 @@ def load_env_variables() -> Dict[str, str]:
         'search_engine_id': search_engine_id
     }
 
-# Realizar búsqueda con Google Dorks
 def perform_google_search(api_key: str, search_engine_id: str, query: str, start: int = 1, lang: str = "lang_es") -> List[Dict]:
     base_url = "https://www.googleapis.com/customsearch/v1"
     params = {
@@ -40,8 +40,7 @@ def perform_google_search(api_key: str, search_engine_id: str, query: str, start
     except (ConnectionError, Timeout, RequestException, ValueError) as e:
         logging.error(f"Error durante la solicitud: {e}")
         return []
-
-# Función para guardar resultados
+    
 def save_results_to_file(results: List[Dict], filename: str) -> None:
     with open(filename, "w", encoding="utf-8") as f:
         for result in results:
@@ -52,7 +51,6 @@ def save_results_to_file(results: List[Dict], filename: str) -> None:
             f.write("-------------------------------\n\n")
     logging.info(f"Resultados guardados en {filename}")
 
-# Ejecutar búsquedas con múltiples Dorks
 def execute_google_dorks(dorks: List[str]) -> Dict:
     try:
         env_vars = load_env_variables()

@@ -13,7 +13,7 @@ def resolve_dns_records(domain: str, record_types: List[str] = None) -> Dict[str
     :param record_types: Lista de tipos de registros DNS a consultar (A, AAAA, MX, etc.).
     :return: Diccionario con los resultados de los registros DNS o errores.
     """
-    # Tipos de registros por defecto
+
     record_types = record_types or ["A", "AAAA", "CNAME", "MX", "NS", "SOA", "TXT"]
     resolver = dns.resolver.Resolver()
     results = {"domain": domain, "records": {}}
