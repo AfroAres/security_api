@@ -15,8 +15,8 @@ ALLOWED_HOSTS = ['educativaipchile.cl', 'localhost', '127.0.0.1']
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
-    'rest_framework'
-    'api',
+    'rest_framework',
+    'scanners',
 ]
 
 MIDDLEWARE = [

@@ -1,27 +1,20 @@
-version: "3.9"
-
 services:
   google_dorks_service:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: main-container
+    container_name: google_dorks-container
     env_file:
       - .env
     ports:
-      - "8001:8000"  # Puerto expuesto (puedes ajustar según necesidades)
+      - "8001:8000"
 
   dns_nmap_service:
-    build: .
-    image: shodan_dvwa_search
-    container_name: shodan_dvwa_search-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dns_nmap-container
     env_file:
       - .env
-    volumes:
-      - ./data/reportes_dns:/app/reportes_dns
     ports:
-      - "8002:8000"  # Puerto expuesto para este servicio
-
-volumes:
-  reportes_dns:
-    driver: local
+      - "8002:8000"

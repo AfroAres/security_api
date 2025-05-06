@@ -10,17 +10,17 @@ class NmapAdapter:
     def scan(ips: list) -> dict:
         results = {}
 
-        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nmap_scaner.py")
+        script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scanners", "nmap_scan.py")
 
         if not os.path.exists(script_path):
             logging.error(f"Script no encontrado: {script_path}")
-            return {"status": "error", "message": "Script nmap_scaner.py no encontrado."}
+            return {"status": "error", "message": "Script nmap_scan.py no encontrado."}
 
         for ip in ips:
             try:
                 logging.info(f"Ejecutando escaneo Nmap para {ip} usando {script_path}")
                 process = subprocess.run(
-                    ["python3", script_path],
+                    ["python", script_path],
                     input=ip,
                     text=True,
                     capture_output=True,

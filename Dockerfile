@@ -18,7 +18,7 @@ COPY . .
 
 # Variables de entorno
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1s
 
 # Script de entrada para migraciones y servidor
 COPY entrypoint.sh /app/entrypoint.sh
