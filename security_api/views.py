@@ -63,7 +63,7 @@ def scan_form_view(request):
             nmap_results = scanner.nmap_scan([domain])
             google_dorks_results = scanner.google_dorks_scan([f"site:{domain}", "intitle:index.of"])
 
-            # Almacenar los resultados
+            # Almacenar los resultados organizados por secciones
             results = {
                 'dns': dns_results,
                 'whois': whois_results,

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Escaneo de Dominio</title>
     <style>
-        /* Estilo general */
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
@@ -17,24 +16,21 @@
             min-height: 100vh;
         }
 
-        /* Contenedor principal */
         .container {
             background-color: #ffffff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
         }
 
-        /* Encabezado */
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 20px;
         }
 
-        /* Formulario */
         form {
             display: flex;
             flex-direction: column;
@@ -53,12 +49,6 @@
             font-size: 16px;
         }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
-
         button {
             padding: 10px;
             background-color: #007bff;
@@ -67,30 +57,24 @@
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Resultados */
-        h2 {
+        .results-section {
             margin-top: 20px;
-            color: #333;
         }
 
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-width: 100%;
-            overflow-x: auto;
+        .results-section h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .results-section pre {
             background-color: #f4f4f4;
             padding: 15px;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
-            color: #333;
+            overflow-x: auto;
         }
     </style>
 </head>
@@ -105,8 +89,22 @@
         </form>
 
         {% if results %}
-            <h2>Resultados:</h2>
-            <pre>{{ results }}</pre>
+            <div class="results-section">
+                <h2>Resultados DNS</h2>
+                <pre>{{ results.dns }}</pre>
+            </div>
+            <div class="results-section">
+                <h2>Resultados WHOIS</h2>
+                <pre>{{ results.whois }}</pre>
+            </div>
+            <div class="results-section">
+                <h2>Resultados Nmap</h2>
+                <pre>{{ results.nmap }}</pre>
+            </div>
+            <div class="results-section">
+                <h2>Resultados Google Dorks</h2>
+                <pre>{{ results.google_dorks }}</pre>
+            </div>
         {% endif %}
     </div>
 </body>
