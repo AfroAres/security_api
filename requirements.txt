@@ -1,7 +1,9 @@
-requests
+django>=4.2
+djangorestframework
 python-dotenv
 dnspython
 python-whois
 python-nmap
-django>=4.2
-djangorestframework
+requests
+openai
+reportlab==3.6.12

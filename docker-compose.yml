@@ -18,3 +18,15 @@ services:
       - .env
     ports:
       - "8002:8000"
+
+  deepseek_service:
+    build: .
+    image: deepseek-api
+    container_name: deepseek-container
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    ports:
+      - "8003:8000"
+    restart: unless-stopped    

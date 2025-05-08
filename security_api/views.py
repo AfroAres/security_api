@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from scanners.scanner import Scanner
@@ -71,4 +71,37 @@ def scan_form_view(request):
                 'google_dorks': google_dorks_results,
             }
 
+            # Guardar los resultados en la sesión
+            request.session['scan_results'] = results
+
     return render(request, 'scan.html', {'results': results})
+
+def download_results_as_text(request):
+    """
+    Vista para generar y descargar los resultados como un archivo de texto.
+    """
+    # Recuperar los resultados desde la sesión
+    results = request.session.get('scan_results')
+
+    if not results:
+        return HttpResponse("No hay resultados disponibles para descargar.", content_type="text/plain")
+
+    # Crear la respuesta HTTP con el archivo de texto
+    response = HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename="results.txt"'
+
+    # Escribir los resultados en el archivo de texto
+    response.write("Resultados DNS:\n")
+    response.write(results['dns'])
+    response.write("\n\nResultados WHOIS:\n")
+    response.write(results['whois'])
+    response.write("\n\nResultados Nmap:\n")
+    response.write(results['nmap'])
+    response.write("\n\nResultados Google Dorks:\n")
+
+    # Formatear los resultados de Google Dorks
+    google_dorks_results = results['google_dorks']
+    for i, result in enumerate(google_dorks_results, start=1):
+        response.write(f"{i}. {result}\n\n")  # Agrega numeración y un espacio entre cada resultado
+
+    return response

@@ -18,10 +18,15 @@ COPY . .
 
 # Variables de entorno
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1s
+ENV PYTHONUNBUFFERED=1
+
+# Exponer el puerto en el que corre Django
+EXPOSE 8000
 
 # Script de entrada para migraciones y servidor
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Comando por defecto para ejecutar el servidor de desarrollo
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

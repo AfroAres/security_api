@@ -76,6 +76,26 @@
             font-size: 14px;
             overflow-x: auto;
         }
+
+        .download-button {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .download-button a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .download-button a:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -105,7 +125,28 @@
                 <h2>Resultados Google Dorks</h2>
                 <pre>{{ results.google_dorks }}</pre>
             </div>
+
+            <div class="download-button">
+                <a href="{% url 'download_text' %}" target="_blank">Descargar Resultados como Texto</a>
+            </div>
+            {% endif %}
+            
+          <!-- Mostrar la respuesta de DeepSeek -->
+        {% if deepseek_response %}
+        <div class="deepseek-response">
+            <h2>Respuesta de DeepSeek</h2>
+            <pre>{{ deepseek_response }}</pre>
+        </div>
         {% endif %}
+
+        <!-- Botón para consultar DeepSeek -->
+        <div class="deepseek-section">
+            <h2>Analizar Respuesta con DeepSeek</h2>
+            <form method="POST" action="/deepseek/deepseek/">
+                {% csrf_token %}
+                <button type="submit">Analizar Respuesta</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>
