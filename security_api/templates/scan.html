@@ -1,137 +1,89 @@
+
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escaneo de Dominio</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #555;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        button {
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .results-section {
-            margin-top: 20px;
-        }
-
-        .results-section h2 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .results-section pre {
-            background-color: #f4f4f4;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            overflow-x: auto;
-        }
-
-        .download-button {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .download-button a {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        .download-button a:hover {
-            background-color: #218838;
-        }
-    </style>
-</head>
+    <head>
+        {% load static %}
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Escaneo de Dominio</title>
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    </head>
 <body>
     <div class="container">
         <h1>Escaneo de Dominio</h1>
         <form method="POST" action="">
             {% csrf_token %}
             <label for="domain">Dominio:</label>
-            <input type="text" id="domain" name="domain" placeholder="example.com" required>
+            <input type="text" id="domain" name="domain" placeholder="example.com" value="{{ domain }}" required>
             <button type="submit">Escanear</button>
         </form>
 
         {% if results %}
             <div class="results-section">
                 <h2>Resultados DNS</h2>
-                <pre>{{ results.dns }}</pre>
+                <p><strong>Total de IPs:</strong> {{ results.dns.registros_a.total }}</p>
+                <p><strong>IPs Válidas:</strong> {{ results.dns.registros_a.validas|join:", " }}</p>
+                <p><strong>Servidores de Nombres:</strong> {{ results.dns.registros_ns.servidores|join:", " }}</p>
+                <p><strong>Registros TXT:</strong></p>
+                <ul>
+                    {% for txt in results.dns.registros_txt.detalles %}
+                    <li>{{ txt }}</li>
+                    {% endfor %}
+                </ul>
             </div>
+
             <div class="results-section">
                 <h2>Resultados WHOIS</h2>
-                <pre>{{ results.whois }}</pre>
+                <p><strong>Fecha de Creación:</strong> {{ results.whois.fechas.creacion }}</p>
+                <p><strong>Fecha de Expiración:</strong> {{ results.whois.fechas.expiracion }}</p>
+                <p><strong>Expira Pronto:</strong> {{ results.whois.fechas.expira_pronto }}</p>
+                <p><strong>Servidores de Nombres:</strong> {{ results.whois.servidores_de_nombres.servidores|join:", " }}</p>
+                <p><strong>Estado del Dominio:</strong> {{ results.whois.estado }}</p>
+                <p><strong>Correos de Contacto:</strong> {{ results.whois.correos }}</p>
+                <p><strong>País:</strong> {{ results.whois.pais }}</p>
             </div>
+
+            <!-- Comentamos el formulario anterior de Nmap -->
+            <!--
             <div class="results-section">
                 <h2>Resultados Nmap</h2>
-                <pre>{{ results.nmap }}</pre>
+                <p><strong>Host:</strong> {{ results.nmap.host.ip }}</p>
+                <p><strong>Estado:</strong> {{ results.nmap.host.estado }}</p>
+                <p><strong>Puertos Abiertos:</strong></p>
+                <ul>
+                    {% for puerto in results.nmap.puertos_abiertos.detalles %}
+                    <li>Puerto: {{ puerto.puerto }}, Servicio: {{ puerto.servicio }}</li>
+                    {% endfor %}
+                </ul>
             </div>
+            -->
+
+            <!-- Nuevo bloque para mostrar los datos de Nmap en bruto -->
+            <div class="results-section">
+                <h2>Resultados Nmap</h2>
+                <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ results.nmap|default:"No hay resultados de Nmap disponibles." }}</pre>
+            </div>
+
             <div class="results-section">
                 <h2>Resultados Google Dorks</h2>
-                <pre>{{ results.google_dorks }}</pre>
+                <p><strong>Total de Resultados:</strong> {{ results.google_dorks.total_resultados }}</p>
+                <ul>
+                    {% for dork in results.google_dorks.detalles %}
+                    <li>
+                        <strong>Título:</strong> {{ dork.titulo }}<br>
+                        <strong>Enlace:</strong> <a href="{{ dork.enlace }}" target="_blank">{{ dork.enlace }}</a><br>
+                        <strong>Snippet:</strong> {{ dork.snippet }}
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
 
             <div class="download-button">
                 <a href="{% url 'download_text' %}" target="_blank">Descargar Resultados como Texto</a>
             </div>
-            {% endif %}
+        {% endif %}
             
-          <!-- Mostrar la respuesta de DeepSeek -->
+        <!-- Mostrar la respuesta de DeepSeek -->
         {% if deepseek_response %}
         <div class="deepseek-response">
             <h2>Respuesta de DeepSeek</h2>
